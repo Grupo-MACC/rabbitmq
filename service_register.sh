@@ -4,6 +4,7 @@
 SERVICE_NAME="rabbitmq"
 SERVICE_ID="rabbitmq"
 SERVICE_PORT=5672
+
 CONSUL_HOST="10.0.11.40"  # IP del Consul agent
 CONSULT_PORT=8500
 TAGS='["rabbitmq","microservice"]'
@@ -23,7 +24,7 @@ curl -s -X PUT "http://${CONSUL_HOST}:${CONSULT_PORT}/v1/agent/service/register"
            \"Tags\": ${TAGS},
            \"Meta\": ${META},
            \"Check\": {
-             \"HTTP\": \"http://${SERVICE_ADDRESS}:${SERVICE_PORT}/docs\",
+             \"HTTP\": \"http://${SERVICE_ADDRESS}:15672/api/healthchecks/node\",
              \"Interval\": \"10s\",
              \"Timeout\": \"5s\"
            }
