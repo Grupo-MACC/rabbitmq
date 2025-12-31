@@ -3,7 +3,6 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq-2
     hostname: rabbitmq-2
-    entrypoint: ["/entrypoint-node2.sh"]
     ports:
       - "5000:5672"
       - "15672:15672"
@@ -16,6 +15,8 @@ services:
       - rabbitmq2_data:/var/lib/rabbitmq
       - ./certs:/certs:ro
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/conf.d/20-ssl.conf:ro
+      - /home/ubuntu/app/entrypoint-node2.sh:/entrypoint-node2.sh:ro
+    entrypoint: ["/entrypoint-node2.sh"]
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
@@ -23,8 +24,6 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-    volumes:
-    - /home/ubuntu/app/entrypoint-node2.sh:/entrypoint-node2.sh:ro
 
 volumes:
   rabbitmq2_data:
