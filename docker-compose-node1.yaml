@@ -6,6 +6,8 @@ services:
     ports:
       - "5000:5672"
       - "15672:15672"
+      - "25672:25672"  # ← AÑADIR ESTE PUERTO
+      - "4369:4369"
     environment:
       RABBITMQ_NODENAME: rabbit@rabbitmq-1
       RABBITMQ_ERLANG_COOKIE: CLUSTER_SECRET_COOKIE_123

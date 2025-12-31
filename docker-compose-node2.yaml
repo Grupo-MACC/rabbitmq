@@ -6,6 +6,8 @@ services:
     ports:
       - "5000:5672"
       - "15672:15672"
+      - "25672:25672"  # ← AÑADIR ESTE PUERTO
+      - "4369:4369"
     environment:
       RABBITMQ_NODENAME: rabbit@rabbitmq-2
       RABBITMQ_ERLANG_COOKIE: CLUSTER_SECRET_COOKIE_123
@@ -17,8 +19,6 @@ services:
       - rabbitmq2_data:/var/lib/rabbitmq
       - ./certs:/certs:ro
       - ./rabbitmq.conf:/etc/rabbitmq/conf.d/20-ssl.conf:ro
-      - ./entrypoint-node2.sh:/entrypoint-node2.sh:ro
-    entrypoint: ["/entrypoint-node2.sh"]
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
