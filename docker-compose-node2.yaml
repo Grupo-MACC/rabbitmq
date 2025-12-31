@@ -13,7 +13,7 @@ services:
       RABBITMQ_DEFAULT_PASS: admin_password
     volumes:
       - rabbitmq2_data:/var/lib/rabbitmq
-      - ./certs:/certs:ro
+      # - ./certs:/certs:ro
       - ./rabbitmq.conf:/etc/rabbitmq/conf.d/20-ssl.conf:ro
       - ./entrypoint-node2.sh:/entrypoint-node2.sh:ro
     entrypoint: ["/entrypoint-node2.sh"]
