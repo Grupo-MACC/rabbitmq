@@ -13,7 +13,6 @@ services:
       RABBITMQ_DEFAULT_PASS: admin_password
     extra_hosts:
       - "rabbitmq-1:10.1.11.30"
-      - "rabbitmq-2:10.1.11.31"
     volumes:
       - rabbitmq2_data:/var/lib/rabbitmq
       - ./certs:/certs:ro
