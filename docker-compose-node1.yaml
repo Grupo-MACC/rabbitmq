@@ -1,0 +1,31 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
+    ports:
+      - "5000:5672"
+      - "15672:15672"
+      - "25672:25672"  # ← AÑADIR ESTE PUERTO
+      - "4369:4369"
+    environment:
+      RABBITMQ_NODENAME: rabbit@rabbitmq-1
+      RABBITMQ_ERLANG_COOKIE: CLUSTER_SECRET_COOKIE_123
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin_password
+    extra_hosts:
+      - "rabbitmq-2:10.1.11.31"
+    volumes:
+      - rabbitmq1_data:/var/lib/rabbitmq
+      - ./certs:/certs:ro
+      - ./rabbitmq.conf:/etc/rabbitmq/conf.d/20-ssl.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  rabbitmq1_data:
