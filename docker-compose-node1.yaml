@@ -19,6 +19,8 @@ services:
       - rabbitmq1_data:/var/lib/rabbitmq
       - ./certs:/certs:ro
       - ./rabbitmq.conf:/etc/rabbitmq/conf.d/20-ssl.conf:ro
+      - ./definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq-extra.conf:/etc/rabbitmq/conf.d/30-definitions.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s

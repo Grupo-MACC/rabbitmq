@@ -12,13 +12,15 @@ services:
       RABBITMQ_NODENAME: rabbit@rabbitmq-2
       RABBITMQ_ERLANG_COOKIE: CLUSTER_SECRET_COOKIE_123
       RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin_password
+      RABBITMQ_DEFAULT_PASS: admin_passwordp
     extra_hosts:
       - "rabbitmq-1:10.1.11.30"
     volumes:
       - rabbitmq2_data:/var/lib/rabbitmq
       - ./certs:/certs:ro
       - ./rabbitmq.conf:/etc/rabbitmq/conf.d/20-ssl.conf:ro
+      - ./definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq-extra.conf:/etc/rabbitmq/conf.d/30-definitions.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
