@@ -1,0 +1,60 @@
+---
+- name: Wait for RabbitMQ container to be healthy
+  shell: "docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' rabbitmq-2"
+  register: health_status
+  until: health_status.stdout == "healthy"
+  retries: 30
+  delay: 10
+  changed_when: false
+
+- name: Check if node is already in cluster
+  command: docker exec rabbitmq-2 rabbitmqctl cluster_status
+  register: current_cluster_status
+  changed_when: false
+  failed_when: false
+
+- name: Set fact if already clustered
+  set_fact:
+    already_clustered: "{{ 'rabbit@rabbitmq-1' in current_cluster_status.stdout and 'Running Nodes' in current_cluster_status.stdout }}"
+
+- name: Display clustering status
+  debug:
+    msg: "Node is {{ 'already' if already_clustered else 'not' }} part of the cluster"
+
+- name: Join node to cluster
+  block:
+    - name: Stop RabbitMQ app on node 2
+      command: docker exec rabbitmq-2 rabbitmqctl stop_app
+
+    - name: Reset RabbitMQ node 2
+      command: docker exec rabbitmq-2 rabbitmqctl reset
+
+    - name: Forget node 2 from node 1 (cleanup inconsistent state)
+      delegate_to: rabbitmq_service
+      command: docker exec rabbitmq-1 rabbitmqctl forget_cluster_node rabbit@rabbitmq-2
+      ignore_errors: yes
+
+    - name: Join node 2 to cluster with node 1
+      command: docker exec rabbitmq-2 rabbitmqctl join_cluster rabbit@rabbitmq-1
+
+    - name: Start RabbitMQ app on node 2
+      command: docker exec rabbitmq-2 rabbitmqctl start_app
+  when: not already_clustered
+
+- name: Get final cluster status
+  command: docker exec rabbitmq-2 rabbitmqctl cluster_status
+  register: cluster_status
+  changed_when: false
+
+- name: Display cluster status
+  debug:
+    var: cluster_status.stdout_lines
+
+- name: Verify both nodes are running
+  assert:
+    that:
+      - "'rabbit@rabbitmq-1' in cluster_status.stdout"
+      - "'rabbit@rabbitmq-2' in cluster_status.stdout"
+      - "'Running Nodes' in cluster_status.stdout"
+    fail_msg: "Cluster is not properly configured"
+    success_msg: "RabbitMQ cluster is running successfully with both nodes"
